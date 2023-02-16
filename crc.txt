@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <string.h>
+
+#define N strlen(gen_poly)
+char data[28];
+char check_value[28];
+char gen_poly[10];
+int data_length, i, j;
+
+void XOR() {
+    j = 1;
+    while (j < N) {
+        check_value[j] = ((check_value[j] == gen_poly[j]) ? '0' : '1');
+        j++;
+    }
+}
+
+void receiver() {
+    printf("Enter the received data: ");
+    scanf("%s", data);
+    printf("\n-----------------------------\n");
+    printf("Data received: %s", data);
+    crc();
+    i = 0;
+    while ((i < N - 1) && (check_value[i] != '1')) {
+        i++;
+    }
+    if (i < N - 1) {
+        printf("\nError detected\n\n");
+    } else {
+        printf("\nNo error detected\n\n");
+    }
+}
+
+void crc() {
+    i = 0;
+    while (i < N) {
+        check_value[i] = data[i];
+        i++;
+    }
+
+    i = 0;
+    while (i <= data_length + N - 1) {
+        if (check_value[0] == '1') {
+            XOR();
+        }
+        j = 0;
+        while (j < N - 1) {
+            check_value[j] = check_value[j + 1];
+            j++;
+        }
+        check_value[j] = data[i++];
+    }
+}
+
+int main() {
+    printf("\nEnter data to be transmitted: ");
+    scanf("%s", data);
+    printf("\nEnter the Generating polynomial: ");
+    scanf("%s", gen_poly);
+    data_length = strlen(data);
+
+    i = data_length;
+    while (i < data_length + N - 1) {
+        data[i] = '0';
+        i++;
+    }
+    printf("\n----------------------------------------");
+    printf("\n Data padded with n-1 zeros : %s", data);
+    printf("\n----------------------------------------");
+
+    crc();
+    printf("\nCRC or Check value is : %s", check_value);
+
+    i = data_length;
+    while (i < data_length + N - 1) {
+        data[i] = check_value[i - data_length];
+        i++;
+    }
+    printf("\n----------------------------------------");
+    printf("\n Final data to be sent : %s", data);
+    printf("\n----------------------------------------\n");
+
+    receiver();
+    return 0;
+}
